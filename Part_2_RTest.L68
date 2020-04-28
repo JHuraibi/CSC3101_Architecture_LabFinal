@@ -1,0 +1,159 @@
+00001000 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.16.01
+Created On: 4/24/2020 10:26:55 PM
+
+00000000                             1  *-----------------------------------------------------------
+00000000                             2  * Title      :
+00000000                             3  * Written by :
+00000000                             4  * Date       :
+00000000                             5  * Description: Testing modulus WORKING
+00000000                             6  *-----------------------------------------------------------
+00000000                             7  
+00001000                             8      ORG    $1000
+00001000                             9  START:                  * first instruction of program
+00001000                            10       
+00001000                            11  
+00001000                            12          * [ if(a > b) -> GCD(b, a % b) ]
+00001000                            13          * [ a = (b), b =(a % b) ]
+00001000                            14          
+00001000  1239 00001066             15          MOVE.B  a, D1
+00001006  1439 00001067             16          MOVE.B  b, D2
+0000100C  84C1                      17          DIVU    D1, D2          * D2 / D1 -> D2 
+0000100E  B441                      18          CMP     D1, D2               *dummy
+00001010  343C 0000                 19          MOVE.W  #0, D2          * Clear lower 16-bits of D2
+00001014  4842                      20          SWAP    D2              * Remainder now in lower 16-bits
+00001016                            21          
+00001016  13F9 00001067 00001066    22          MOVE.B  b, a            * Store 'b' into 'a' BEFORE updating 'b'
+00001020  13C2 00001067             23          MOVE.B  D2, b           * Store mod remainder in 'b'
+00001026                            24          
+00001026  43F9 0000106C             25          LEA     newLine, A1    
+0000102C  103C 000E                 26          MOVE.B  #14, D0     
+00001030  4E4F                      27          TRAP    #15
+00001032                            28          
+00001032  43F9 000010F0             29          LEA     msgA, A1    
+00001038  103C 000E                 30          MOVE.B  #14, D0     
+0000103C  4E4F                      31          TRAP    #15
+0000103E                            32  
+0000103E  1239 00001066             33          MOVE.B  a, D1
+00001044  103C 0003                 34          MOVE.B  #3, D0     
+00001048  4E4F                      35          TRAP    #15
+0000104A                            36          
+0000104A  43F9 000010F6             37          LEA     msgB, A1    
+00001050  103C 000E                 38          MOVE.B  #14, D0     
+00001054  4E4F                      39          TRAP    #15
+00001056                            40  
+00001056  1239 00001067             41          MOVE.B  b, D1
+0000105C  103C 0003                 42          MOVE.B  #3, D0     
+00001060  4E4F                      43          TRAP    #15
+00001062                            44          
+00001062  FFFF FFFF                 45      SIMHALT             * halt simulator
+00001066                            46  
+00001066                            47  *---------------------------------*
+00001066                            48  *---| Variables and Constants |---*
+00001066                            49  *---------------------------------*
+00001066= 14                        50  a       DC.B    20
+00001067= 1E                        51  b       DC.B    30 
+00001068= 00                        52  value   DC.B    0
+00001069= 00                        53  testA   DC.B    0
+0000106A= 00                        54  testB   DC.B    0
+0000106B= 00                        55  mod     DC.B    0
+0000106C                            56  
+0000106C= 0D 0A 00                  57  newline  DC.B $0D,$0A,0
+00001070= 496E 7075 7420 6...       58  prmtGetA DC.W 'Input a: ', 0
+0000107C= 496E 7075 7420 6...       59  prmtGetB DC.W 'Input b: ', 0
+00001088                            60  
+00001088= 6120 7761 7320 3...       61  isZeroA   DC.W 'a was 0, return b',$0D,$0A,0
+000010A0= 6220 7761 7320 3...       62  isZeroB   DC.W 'b was 0, return a',$0D,$0A,0
+000010B8= 5352 2045 4E44 0...       63  msgSR_END DC.W 'SR END',$0D,$0A,0
+000010C4= 5661 6C75 6520 5...       64  valueWas  DC.W 'Value Returned: ',0
+000010D6= 5245 4355 5253 4...       65  msgRecur  DC.W 'RECURSIVE CALL',$0D,$0A,0
+000010EA                            66  
+000010EA= 4432 3A20 0000            67  msgD2     DC.W 'D2: ',0
+000010F0= 413A 2000 0000            68  msgA      DC.W 'A: ',0
+000010F6= 423A 2000 0000            69  msgB      DC.W 'B: ',0
+000010FC                            70  
+000010FC                            71  
+000010FC                            72  *---------------------*
+000010FC                            73  *---| Subroutines |---*
+000010FC                            74  *---------------------*
+000010FC                            75          
+000010FC  2E17                      76  subr_2  MOVE.L  (A7),D7         * Pop the PC value from the stack
+000010FE  4297                      77          CLR.L   (A7)            * clear the contents of the stack
+00001100  598F                      78          SUB.L   #4,A7           * Decrement the head of the stack
+00001102                            79          
+00001102  43F8 10D6                 80          LEA     msgRecur, A1    * TESTING, indicate SR call
+00001106  103C 000E                 81          MOVE.B  #14, D0         
+0000110A  4E4F                      82          TRAP    #15
+0000110C                            83  
+0000110C                            84          * [ if(a == 0), return b ]
+0000110C  1238 1069                 85          MOVE.B  testA, D1       * Load value in 'a'
+00001110  B27C 0000                 86          CMP     #0, D1          * Check if a == 0
+00001114  6600 0016                 87          BNE     checkB
+00001118  11F8 106A 1068            88          MOVE.B  testB, value    * Set 'value' equal to 'b'
+0000111E                            89  
+0000111E  43F8 1088                 90          LEA     isZeroA , A1    * TESTING
+00001122  103C 000E                 91          MOVE.B  #14, D0         
+00001126  4E4F                      92          TRAP    #15
+00001128                            93  
+00001128  6000 0022                 94          BRA     recurBlock
+0000112C                            95  
+0000112C                            96  checkB                  
+0000112C                            97          * [ if(b == 0), return a ]
+0000112C  1238 106A                 98          MOVE.B  testB, D1       * Load value in 'b'
+00001130  B27C 0000                 99          CMP     #0, D1          * Check if b == 0
+00001134  6600 0016                100          BNE     recurBlock
+00001138  11F8 1069 1068           101          MOVE.B  testA, value    * Set 'value' equal to 'a'
+0000113E                           102  
+0000113E  43F8 1088                103          LEA     isZeroA , A1    * TESTING
+00001142  103C 000E                104          MOVE.B  #14, D0         
+00001146  4E4F                     105          TRAP    #15
+00001148                           106          
+00001148  6000 0002                107          BRA     recurBlock
+0000114C                           108          
+0000114C                           109  recurBlock
+0000114C                           110          * [ if/else block ]
+0000114C  43F8 10B8                111          LEA     msgSR_END, A1    * TESTING
+00001150  103C 000E                112          MOVE.B  #14, D0         
+00001154  4E4F                     113          TRAP    #15
+00001156                           114  
+00001156                           115          * PART 2_2 (ifElseBlock)
+00001156                           116          * [ if(a > b), return GCD(b, a% b) ]
+00001156                           117          
+00001156                           118          
+00001156                           119          * return
+00001156                           120  
+00001156  2E87                     121          MOVE.L  D7,(A7)         * Push the PC value back into the stack
+00001158  4E75                     122          RTS                     * Exit subroutine            
+0000115A                           123          
+0000115A                           124                      *END [ Second SR ]
+0000115A                           125  
+0000115A                           126      END    START   * last line of source
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+A                   1066
+B                   1067
+CHECKB              112C
+ISZEROA             1088
+ISZEROB             10A0
+MOD                 106B
+MSGA                10F0
+MSGB                10F6
+MSGD2               10EA
+MSGRECUR            10D6
+MSGSR_END           10B8
+NEWLINE             106C
+PRMTGETA            1070
+PRMTGETB            107C
+RECURBLOCK          114C
+START               1000
+SUBR_2              10FC
+TESTA               1069
+TESTB               106A
+VALUE               1068
+VALUEWAS            10C4

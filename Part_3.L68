@@ -1,0 +1,365 @@
+00001000 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.16.01
+Created On: 4/25/2020 8:05:04 PM
+
+00000000                             1  *-----------------------------------------------------------
+00000000                             2  * Title      :
+00000000                             3  * Written by :
+00000000                             4  * Date       :
+00000000                             5  * Description: Part 3, all subroutines together
+00000000                             6  * STATUS     : NOT WORKING, IN PROGRESS
+00000000                             7  *-----------------------------------------------------------
+00000000                             8  
+00001000                             9      ORG    $1000
+00001000                            10  START:                  * first instruction of program
+00001000                            11  
+00001000                            12      * Run Subroutine 1 *
+00001000  43F9 000011A2             13          LEA     SR1_Start, A1   * Indicate SR1 starting
+00001006  103C 000D                 14          MOVE.B  #13, D0     
+0000100A  4E4F                      15          TRAP    #15
+0000100C                            16          
+0000100C  6100 0242                 17          BSR     getInputs       * Call SR1
+00001010                            18  
+00001010  43F9 000010A6             19          LEA     newline, A1
+00001016  103C 000D                 20          MOVE.B  #13, D0     
+0000101A  4E4F                      21          TRAP    #15
+0000101C  43F9 000011FC             22          LEA     SR1_End, A1     * Indicate SR1 ended
+00001022  103C 000D                 23          MOVE.B  #13, D0     
+00001026  4E4F                      24          TRAP    #15   
+00001028  43F9 000010A6             25          LEA     newline, A1
+0000102E  103C 000D                 26          MOVE.B  #13, D0     
+00001032  4E4F                      27          TRAP    #15     
+00001034                            28          
+00001034                            29      * Run Subroutine 2 *
+00001034  43F9 000011C0             30          LEA     SR2_Start, A1   * Indicate SR2 starting
+0000103A  103C 000D                 31          MOVE.B  #13, D0     
+0000103E  4E4F                      32          TRAP    #15
+00001040                            33          
+00001040  6100 0298                 34          BSR     startGCD        * Call SR2
+00001044                            35          
+00001044  43F9 000010A6             36          LEA     newline, A1
+0000104A  103C 000D                 37          MOVE.B  #13, D0     
+0000104E  4E4F                      38          TRAP    #15
+00001050  43F9 00001218             39          LEA     SR2_End, A1     * Indicate SR2 ended
+00001056  103C 000D                 40          MOVE.B  #13, D0     
+0000105A  4E4F                      41          TRAP    #15
+0000105C  43F9 000010A6             42          LEA     newline, A1
+00001062  103C 000D                 43          MOVE.B  #13, D0     
+00001066  4E4F                      44          TRAP    #15
+00001068                            45          
+00001068                            46      * Run Subroutine 3 *
+00001068  43F9 000011DE             47          LEA     SR3_Start, A1   * Indicate SR3 starting
+0000106E  103C 000D                 48          MOVE.B  #13, D0     
+00001072  4E4F                      49          TRAP    #15
+00001074                            50        
+00001074  6100 0306                 51          BSR     outputValue     * Call SR3
+00001078                            52  
+00001078  43F9 000010A6             53          LEA     newline, A1
+0000107E  103C 000D                 54          MOVE.B  #13, D0     
+00001082  4E4F                      55          TRAP    #15
+00001084  43F9 00001234             56          LEA     SR3_End, A1     * Indicate SR3 ended
+0000108A  103C 000D                 57          MOVE.B  #13, D0     
+0000108E  4E4F                      58          TRAP    #15
+00001090  43F9 000010A6             59          LEA     newline, A1
+00001096  103C 000D                 60          MOVE.B  #13, D0     
+0000109A  4E4F                      61          TRAP    #15
+0000109C                            62          
+0000109C  FFFF FFFF                 63      SIMHALT             * halt simulator
+000010A0                            64  
+000010A0                            65  * --------------------------------------------------------------------------- *
+000010A0                            66  * ---| Variables and Constants |--------------------------------------------- *
+000010A0                            67  * --------------------------------------------------------------------------- *
+000010A0                            68  
+000010A0= 0000                      69  a           DC.W    0
+000010A2= 0000                      70  b           DC.W    0
+000010A4= FFFF                      71  finalVal    DC.W    -1
+000010A6                            72  
+000010A6= 0D 0A 00                  73  newline       DC.B $0D,$0A,0
+000010A9                            74  
+000010AA= 496E 7075 7420 6...       75  promptGetA      DC.W 'Input a: ',0
+000010B6= 496E 7075 7420 6...       76  promptGetB      DC.W 'Input b: ',0
+000010C2                            77  
+000010C2= 466F 7220 412C 2...       78  msgConfirmA     DC.W 'For A, you entered: ',0
+000010D8= 466F 7220 422C 2...       79  msgConfirmB     DC.W 'For B, you entered: ',0
+000010EE= 5468 6520 4669 6...       80  msgFinalVal     DC.W 'The Final GCD is: ',0
+00001102                            81  
+00001102= 4120 6361 6E6E 6...       82  alertAZero      DC.W 'A cannot be Zero(0)',$0D,$0A,0        
+0000111C= 4220 6361 6E6E 6...       83  alertBZero      DC.W 'B cannot be Zero(0)',$0D,$0A,0        
+00001136= 6966 2F65 6C73 6...       84  alertIfElseErr  DC.W 'if/else ERROR',$0D,$0A,0
+0000114A= 4641 494C 4544 0...       85  alertFailed     DC.W 'FAILED',$0D,$0A,0
+00001156                            86  
+00001156                            87  *--| Strings for testing |--*
+00001156= 5B61 2069 7320 3...       88  AIsZero     DC.W '[a is 0, returning b]',$0D,$0A,0
+00001172= 5B62 2069 7320 3...       89  BIsZero     DC.W '[b is 0, returning a]',$0D,$0A,0
+0000118E= 5B61 2065 7175 6...       90  ABEqual     DC.W '[a equal to b',$0D,$0A,0
+000011A2                            91  
+000011A2= 5B53 7562 726F 7...       92  SR1_Start   DC.W '[Subroutine 1: Starting]',$0D,$0A,0
+000011C0= 5B53 7562 726F 7...       93  SR2_Start   DC.W '[Subroutine 2: Starting]',$0D,$0A,0
+000011DE= 5B53 7562 726F 7...       94  SR3_Start   DC.W '[Subroutine 3: Starting]',$0D,$0A,0
+000011FC                            95  
+000011FC= 5B53 7562 726F 7...       96  SR1_End     DC.W '[Subroutine 1: Ended]',$0D,$0A,0
+00001218= 5B53 7562 726F 7...       97  SR2_End     DC.W '[Subroutine 2: Ended]',$0D,$0A,0
+00001234= 5B53 7562 726F 7...       98  SR3_End     DC.W '[Subroutine 3: Ended]',$0D,$0A,0
+00001250                            99  
+00001250                           100  
+00001250                           101  * --------------------------------------------------------------------------- *
+00001250                           102  * ---| Subroutines  |-------------------------------------------------------- *
+00001250                           103  * --------------------------------------------------------------------------- *
+00001250                           104  
+00001250                           105  * ---| Subroutine 1 |--------------------------------------------------- *
+00001250                           106  * TRAP #18: Output string and get input from keyboard (Combines 4 and 14)
+00001250                           107  * TRAP #14: D1.L (<- Long)
+00001250                           108  * D7 OFF LIMITS
+00001250                           109  
+00001250                           110  getInputs  
+00001250  2E17                     111          MOVE.L  (A7),D7         * Pop the PC value from the stack
+00001252  4297                     112          CLR.L   (A7)            * Clear the contents of the stack
+00001254  598F                     113          SUB.L   #4,A7           * Decrement the head of the stack
+00001256                           114  
+00001256                           115  getA
+00001256  43F8 10AA                116          LEA     promptGetA, A1  * Get first input from user
+0000125A  103C 0012                117          MOVE.B  #18, D0
+0000125E  4E4F                     118          TRAP    #15
+00001260                           119          
+00001260  31C1 10A0                120          MOVE.W  D1, a           * Save input in variable 'a'
+00001264  B27C 0000                121          CMP     #0, D1          * Check 'a' is valid
+00001268  6600 000E                122          BNE     getB
+0000126C                           123          
+0000126C  43F8 1102                124          LEA     alertAZero, A1  * Input for 'a' was zero
+00001270  103C 000D                125          MOVE.B  #13, D0
+00001274  4E4F                     126          TRAP    #15
+00001276                           127  
+00001276  60DE                     128          BRA     getA            * Reattempt to get 'a'
+00001278                           129  
+00001278                           130  getB
+00001278  43F8 10B6                131          LEA     promptGetB, A1  * Get first input from user
+0000127C  103C 0012                132          MOVE.B  #18, D0
+00001280  4E4F                     133          TRAP    #15
+00001282                           134          
+00001282  31C1 10A2                135          MOVE.W  D1, b           * Save input in variable 'b'
+00001286  B27C 0000                136          CMP     #0, D1          * Check 'b' is valid
+0000128A  6600 000E                137          BNE     inputsValid
+0000128E                           138          
+0000128E  43F8 111C                139          LEA     alertBZero, A1  * Input for 'b' was zero
+00001292  103C 000D                140          MOVE.B  #13, D0
+00001296  4E4F                     141          TRAP    #15
+00001298                           142  
+00001298  60DE                     143          BRA     getB            * Reattempt to get 'b'
+0000129A                           144  
+0000129A                           145  
+0000129A                           146  inputsValid
+0000129A  43F8 10A6                147          LEA     newline, A1
+0000129E  103C 000D                148          MOVE.B  #13, D0     
+000012A2  4E4F                     149          TRAP    #15
+000012A4                           150          
+000012A4  43F8 10C2                151          LEA     msgConfirmA, A1 * Confirm what was put into 'a'
+000012A8  103C 000E                152          MOVE.B  #14, D0         
+000012AC  4E4F                     153          TRAP    #15
+000012AE                           154          
+000012AE  3238 10A0                155          MOVE.W  a, D1           * Output 'a'
+000012B2  303C 0003                156          MOVE.W  #3, D0     
+000012B6  4E4F                     157          TRAP    #15
+000012B8                           158  
+000012B8  43F8 10A6                159          LEA     newline, A1     * Print new line
+000012BC  103C 000D                160          MOVE.B  #13, D0     
+000012C0  4E4F                     161          TRAP    #15
+000012C2                           162      
+000012C2  43F8 10D8                163          LEA     msgConfirmB, A1 * Confirm what was put into 'b'
+000012C6  103C 000E                164          MOVE.B  #14, D0         
+000012CA  4E4F                     165          TRAP    #15
+000012CC                           166          
+000012CC  3238 10A2                167          MOVE.W  b, D1           * Output 'b'
+000012D0  103C 0003                168          MOVE.B  #3, D0     
+000012D4  4E4F                     169          TRAP    #15
+000012D6                           170          
+000012D6  2E87                     171          MOVE.L  D7,(A7)         * Push the PC value back onto the stack
+000012D8  4E75                     172          RTS                     * Exit subroutine
+000012DA                           173              
+000012DA                           174  * ---------------------------------------------------------------------- *      
+000012DA                           175  
+000012DA                           176  
+000012DA                           177  * ---| Subroutine 2 |--------------------------------------------------- *
+000012DA                           178  * D3 is always used for 'a'
+000012DA                           179  * D4 is always used for 'b'
+000012DA                           180  * D7 OFF LIMITS
+000012DA                           181  * Label 'checkIfBZero' is not used, for ease of reading and consistency
+000012DA                           182  
+000012DA                           183  startGCD
+000012DA  2E17                     184          MOVE.L  (A7),D7         * Pop the PC value from the stack
+000012DC  4297                     185          CLR.L   (A7)            * Clear the contents of the stack
+000012DE  598F                     186          SUB.L   #4,A7           * Decrement the head of the stack
+000012E0                           187  
+000012E0                           188  GCD
+000012E0                           189          * [ Recursive Start ]
+000012E0                           190          
+000012E0                           191  checkIfBZero
+000012E0                           192          * [ if(b == 0), return a ]
+000012E0  3838 10A2                193          MOVE.W  b, D4
+000012E4  B87C 0000                194          CMP     #0, D4          * (b == 0) ?
+000012E8  6600 000C                195          BNE     checkIfAZero    * [FALSE: Branch]
+000012EC                           196          
+000012EC  31F8 10A0 10A4           197          MOVE.W  a, finalVAl     * [TRUE: return a]
+000012F2  6000 0084                198          BRA     return       
+000012F6                           199         
+000012F6                           200  checkIfAZero
+000012F6                           201          * [ if(a == 0), return b ]
+000012F6  0C78 0000 10A0           202          CMP     #0, a           * (a == 0) ?
+000012FC  6600 000C                203          BNE     checkAGreater   * [FALSE: Branch]
+00001300                           204          
+00001300  31F8 10A2 10A4           205          MOVE.W  b, finalVal     * [TRUE: return b]
+00001306  6000 0070                206          BRA     return
+0000130A                           207  
+0000130A                           208  checkAGreater
+0000130A                           209           * [ if(a > b), return GCD(b, a % b) ]
+0000130A                           210      
+0000130A  3638 10A0                211          MOVE.W  a, D3           * D3 == a
+0000130E  3838 10A2                212          MOVE.W  b, D4           * D4 == b
+00001312                           213  
+00001312  B644                     214          CMP     D4, D3          * (a > b) ?
+00001314  6D00 0016                215          BLT     checkBGreater   * [FALSE: Branch]
+00001318                           216      
+00001318                           217                                  * [TRUE: GCD(a, a % b)]
+00001318  86C4                     218          DIVU    D4, D3          * [D3] / [D4] -> [D3]
+0000131A  363C 0000                219          MOVE.W  #0, D3          * Clear lower 16-bits of D4
+0000131E  4843                     220          SWAP    D3              * Move remainder to lower 16-bits
+00001320                           221          
+00001320  31F8 10A2 10A0           222          MOVE.W  b, a            * !! Store 'b' into 'a' BEFORE updating 'b'
+00001326                           223  
+00001326  31C3 10A2                224          MOVE.W  D3, b           * Store mod remainder in 'b'
+0000132A  60B4                     225          BRA     GCD             * return GCD(b, a % b)
+0000132C                           226  
+0000132C                           227  
+0000132C                           228  checkBGreater
+0000132C                           229           * [ if(b > a), return GCD(a, b % a) ]
+0000132C                           230  
+0000132C  3638 10A0                231          MOVE.W  a, D3           * D3 == a
+00001330  3838 10A2                232          MOVE.W  b, D4           * D4 == b
+00001334                           233          
+00001334  B843                     234          CMP     D3, D4          * (b > a)?
+00001336  6D00 0014                235          BLT     else            * [FALSE: Branch]
+0000133A                           236                                  
+0000133A                           237                                  * [TRUE: GCD(a, b % a)]
+0000133A  88C3                     238          DIVU    D3, D4          * [D4] / [D3] -> [D4]
+0000133C                           239  
+0000133C  383C 0000                240          MOVE.W  #0, D4          * Clear lower 16-bits of D4
+00001340  4844                     241          SWAP    D4              * Move remainder to lower 16-bits
+00001342  42B8 10A2                242          CLR.L   b               * Clear 'b'
+00001346  31C4 10A2                243          MOVE.W  D4, b           * Store mod remainder in 'b'
+0000134A  6094                     244          BRA     GCD             * return GCD(a, b % a)
+0000134C                           245  
+0000134C                           246  
+0000134C                           247  else
+0000134C                           248          * [ if(a == b), return a ] 
+0000134C                           249  
+0000134C  3638 10A0                250          MOVE.W  a, D3
+00001350  3838 10A2                251          MOVE.W  b, D4
+00001354                           252          
+00001354                           253          *THIS LINE SHOULD ALWAYS BE TRUE:
+00001354  B843                     254          CMP     D3, D4          * (a == b) ? 
+00001356  6600 000C                255          BNE     error           * [FALSE, Branch]
+0000135A                           256                                  
+0000135A  31F8 10A0 10A4           257          MOVE.W  a, finalVal     * [TRUE: return a]
+00001360  6000 0016                258          BRA     return
+00001364                           259  
+00001364                           260  error               
+00001364  43F8 1136                261          LEA     alertIfElseErr, A1  * Show error message
+00001368  103C 000D                262          MOVE.B  #13, D0     
+0000136C  4E4F                     263          TRAP    #15
+0000136E                           264          
+0000136E  31FC FFFF 10A4           265          MOVE.W  #-1, finalVal   * [ Indicate error, store -1 to 'finalVal' ]
+00001374  6000 0002                266          BRA     return          * [ Redundant ]
+00001378                           267          
+00001378                           268  return   
+00001378  2E87                     269          MOVE.L  D7,(A7)         * Push the PC value back onto the stack
+0000137A  4E75                     270          RTS                     * Exit subroutine        
+0000137C                           271  
+0000137C                           272  * ---------------------------------------------------------------------- *
+0000137C                           273  
+0000137C                           274                      
+0000137C                           275  
+0000137C                           276  * ---| Subroutine 3 |--------------------------------------------------- *
+0000137C                           277  * Final GCD is in 'finalVal'
+0000137C                           278  * D7 OFF LIMITS
+0000137C                           279  
+0000137C                           280  outputValue     
+0000137C  2E17                     281          MOVE.L  (A7),D7         * Pop the PC value from the stack
+0000137E  4297                     282          CLR.L   (A7)            * Clear the contents of the stack
+00001380  598F                     283          SUB.L   #4,A7           * Decrement the head of the stack
+00001382                           284  
+00001382                           285  * Part of if/else error checking functionality that got overwritten
+00001382                           286  *       CMP     #-1, finalVal   * "-1" indicates function failed
+00001382                           287  *       BNE     success         * [FALSE: Branch]
+00001382                           288  *       
+00001382                           289  *       LEA     alertFailed, A1 * [TRUE: Show err alert]
+00001382                           290  *       MOVE.B  #14, D0
+00001382                           291  *       TRAP    #15
+00001382                           292  *       BRA     end
+00001382                           293  
+00001382                           294  success     
+00001382  43F8 10EE                295          LEA     msgFinalVal, A1
+00001386  103C 000E                296          MOVE.B  #14, D0
+0000138A  4E4F                     297          TRAP    #15
+0000138C                           298  
+0000138C                           299  end        
+0000138C  3238 10A4                300          MOVE.W  finalVal, D1    * Output finalVal (either GCD or -1)
+00001390  103C 0003                301          MOVE.B  #3, D0     
+00001394  4E4F                     302          TRAP    #15
+00001396                           303          
+00001396  43F8 10A6                304          LEA     newline, A1     * Print new line
+0000139A  103C 000D                305          MOVE.B  #13, D0     
+0000139E  4E4F                     306          TRAP    #15
+000013A0                           307          
+000013A0  2E87                     308          MOVE.L  D7,(A7)         * Push the PC value back onto the stack
+000013A2  4E75                     309          RTS                     * Exit subroutine            
+000013A4                           310          
+000013A4                           311  * ------------------------------------------------------------------------- *
+000013A4                           312                       
+000013A4                           313                       
+000013A4                           314      END    START   * last line of source
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+A                   10A0
+ABEQUAL             118E
+AISZERO             1156
+ALERTAZERO          1102
+ALERTBZERO          111C
+ALERTFAILED         114A
+ALERTIFELSEERR      1136
+B                   10A2
+BISZERO             1172
+CHECKAGREATER       130A
+CHECKBGREATER       132C
+CHECKIFAZERO        12F6
+CHECKIFBZERO        12E0
+ELSE                134C
+END                 138C
+ERROR               1364
+FINALVAL            10A4
+GCD                 12E0
+GETA                1256
+GETB                1278
+GETINPUTS           1250
+INPUTSVALID         129A
+MSGCONFIRMA         10C2
+MSGCONFIRMB         10D8
+MSGFINALVAL         10EE
+NEWLINE             10A6
+OUTPUTVALUE         137C
+PROMPTGETA          10AA
+PROMPTGETB          10B6
+RETURN              1378
+SR1_END             11FC
+SR1_START           11A2
+SR2_END             1218
+SR2_START           11C0
+SR3_END             1234
+SR3_START           11DE
+START               1000
+STARTGCD            12DA
+SUCCESS             1382

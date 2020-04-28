@@ -1,0 +1,89 @@
+00001000 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.16.01
+Created On: 4/24/2020 5:29:25 PM
+
+00000000                             1  *---------------------------------------------------------------
+00000000                             2  * Title      : 
+00000000                             3  * Written by : 
+00000000                             4  * Date       :
+00000000                             5  * Description: First SR of Project (Get 2 inputs from user)
+00000000                             6  *---------------------------------------------------------------
+00000000                             7  * Notes:
+00000000                             8  *   10/$0A -> NL
+00000000                             9  *   13/$0D -> CR
+00000000                            10  *   D7 is storing the PC
+00000000                            11  *---------------------------------------------------------------
+00000000                            12  
+00001000                            13      ORG    $1000
+00001000                            14  START:                  * first instruction of program
+00001000                            15  
+00001000                            16  
+00001000  6100 0070                 17          BSR subr_1              *SUBROUTINE 1 CALL
+00001004                            18          
+00001004                            19          * CHECKING VALUE IN a
+00001004  43F9 00001056             20          LEA     valueOfA , A1    
+0000100A  103C 000E                 21          MOVE.B  #14, D0         
+0000100E  4E4F                      22          TRAP    #15  
+00001010  1239 00001038             23          MOVE.B  a, D1
+00001016  103C 0003                 24          MOVE.B  #3, D0
+0000101A  4E4F                      25          TRAP    #15
+0000101C                            26  
+0000101C                            27          * CHECKING VALUE IN b
+0000101C  43F9 00001064             28          LEA     valueOfB , A1    
+00001022  103C 000E                 29          MOVE.B  #14, D0         
+00001026  4E4F                      30          TRAP    #15  
+00001028  1239 00001039             31          MOVE.B  b, D1
+0000102E  103C 0003                 32          MOVE.B  #3, D0
+00001032  4E4F                      33          TRAP    #15 
+00001034                            34          
+00001034  FFFF FFFF                 35      SIMHALT             * halt simulator
+00001038                            36  
+00001038                            37  *[   Variables and Constants   ]
+00001038= 00                        38  a       DC.B    0
+00001039= 00                        39  b       DC.B    0
+0000103A                            40  
+0000103A= 496E 7075 7420 6...       41  prmtGetA DC.W 'Input a: ', 0
+00001046= 496E 7075 7420 6...       42  prmtGetb DC.W 'Input b: ', 0
+00001052                            43  
+00001052= 0D 0A 00                  44  newline  DC.B $0D,$0A,0
+00001056= 5661 6C75 6520 6...       45  valueOfA DC.W 'Value of A: ', 0
+00001064= 5661 6C75 6520 6...       46  valueOfB DC.W 'Value of B: ', 0
+00001072                            47  
+00001072                            48          
+00001072  2E17                      49  subr_1  MOVE.L  (A7),D7         * Pop the PC value from the stack
+00001074  4297                      50          CLR.L   (A7)            * clear the contents of the stack
+00001076  598F                      51          SUB.L   #4,A7           * Decrement the head of the stack
+00001078                            52  
+00001078  43F8 103A                 53          LEA     prmtGetA, A1    * Queue the first prompt message
+0000107C  103C 0012                 54          MOVE.B  #18, D0         * Load TRAP (18: Output and keyboard)
+00001080  4E4F                      55          TRAP    #15             * Execute TRAP
+00001082  11C1 1038                 56          MOVE.B  D1, a           * Save to variable 'a'
+00001086                            57  
+00001086  43F8 1046                 58          LEA     prmtGetB, A1    * Queue the second prompt message
+0000108A  103C 0012                 59          MOVE.B  #18, D0         * Ensure TRAP value(18: Output and keyboard)
+0000108E  4E4F                      60          TRAP    #15             * Execute TRAP
+00001090  11C1 1039                 61          MOVE.B  D1, b           * Save to variable 'b'
+00001094                            62       
+00001094  2E87                      63          MOVE.L  D7,(A7)         * Push the PC value back into the stack
+00001096  4E75                      64          RTS                     * Exit subroutine            
+00001098                            65          
+00001098                            66                      *END [ FIRST SR ]
+00001098                            67  
+00001098                            68      END    START   * last line of source     
+
+No errors detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+A                   1038
+B                   1039
+NEWLINE             1052
+PRMTGETA            103A
+PRMTGETB            1046
+START               1000
+SUBR_1              1072
+VALUEOFA            1056
+VALUEOFB            1064

@@ -1,0 +1,173 @@
+00001000 Starting Address
+Assembler used: EASy68K Editor/Assembler v5.16.01
+Created On: 4/24/2020 11:25:03 PM
+
+00000000                             1  *-----------------------------------------------------------
+00000000                             2  * Title      :
+00000000                             3  * Written by :
+00000000                             4  * Date       :
+00000000                             5  * Description: Second SR of Project (if/else block) [2 of 2]
+00000000                             6  
+00000000                             7  * (add to notes)[Ascending LOC: (a == b), (b > a), (a > b)]
+00000000                             8  
+00000000                             9  * STATUS     : NOT WORKING, IN PROGRESS
+00000000                            10  *-----------------------------------------------------------
+00000000                            11  
+00001000                            12      ORG    $1000
+00001000                            13  START:                  * first instruction of program
+00001000                            14  
+00001000                            15  
+00001000                            16  *[TESTING] SUBROUTINE 2 CALL WILL BE DONE BY subr_1
+00001000  6100 00AA                 17          BSR     gcdStart
+00001004                            18          
+00001004  43F9 0000102F             19          LEA     newLine, A1    
+0000100A  103C 000E                 20          MOVE.B  #14, D0     
+0000100E  4E4F                      21          TRAP    #15
+00001010  43F9 00001086             22          LEA     valueWas, A1 
+00001016  103C 000E                 23          MOVE.B  #14, D0     
+0000101A  4E4F                      24          TRAP    #15
+0000101C                            25  
+0000101C  1239 0000102E             26          MOVE.B  value, D1   * TESTING what was returned
+00001022  103C 0003                 27          MOVE.B  #3, D0     
+00001026  4E4F                      28          TRAP    #15
+00001028                            29          
+00001028  FFFF FFFF                 30      SIMHALT             * halt simulator
+0000102C                            31  
+0000102C                            32  *---------------------------------*
+0000102C                            33  *---| Variables and Constants |---*
+0000102C                            34  *---------------------------------*
+0000102C                            35  
+0000102C= 03                        36  a       DC.B    3
+0000102D= 05                        37  b       DC.B    5
+0000102E= 00                        38  value   DC.B    0
+0000102F                            39  
+0000102F= 0D 0A 00                  40  newline  DC.B $0D,$0A,0
+00001032= 496E 7075 7420 6...       41  prmtGetA DC.W 'Input a: ', 0
+0000103E= 496E 7075 7420 6...       42  prmtGetB DC.W 'Input b: ', 0
+0000104A                            43  
+0000104A= 6120 7761 7320 3...       44  isZeroA   DC.W 'a was 0, return b',$0D,$0A,0
+00001062= 6220 7761 7320 3...       45  isZeroB   DC.W 'b was 0, return a',$0D,$0A,0
+0000107A= 5352 2045 4E44 0...       46  msgSR_END DC.W 'SR END',$0D,$0A,0
+00001086= 5661 6C75 6520 5...       47  valueWas  DC.W 'Value Returned: ',0
+00001098= 5245 4355 5253 4...       48  msgRecur  DC.W 'RECURSIVE CALL',$0D,$0A,0
+000010AC                            49  
+000010AC                            50  
+000010AC                            51  *---------------------*
+000010AC                            52  *---| Subroutines |---*
+000010AC                            53  *---------------------*
+000010AC                            54          
+000010AC                            55  gcdStart 
+000010AC  2E17                      56          MOVE.L  (A7),D7         * Pop the PC value from the stack
+000010AE  4297                      57          CLR.L   (A7)            * clear the contents of the stack
+000010B0  598F                      58          SUB.L   #4,A7           * Decrement the head of the stack
+000010B2                            59  
+000010B2                            60  gcd     
+000010B2                            61          * [ (b == 0), return a ]
+000010B2  1238 102D                 62          MOVE.B  b, D1           * Load value in 'b'
+000010B6  B27C 0000                 63          CMP     #0, D1          * (b == 0) ?
+000010BA  6600 0032                 64          BNE     recurBlock
+000010BE  11F8 102C 102E            65          MOVE.B  a, value        * Set 'value' equal to 'a'
+000010C4                            66  
+000010C4  43F8 104A                 67          LEA     isZeroA , A1    * TESTING
+000010C8  103C 000E                 68          MOVE.B  #14, D0         
+000010CC  4E4F                      69          TRAP    #15
+000010CE                            70  
+000010CE  6000 001E                 71          BRA     recurBlock
+000010D2                            72         
+000010D2                            73  checkA
+000010D2                            74          * [ if(a == 0), return b ]
+000010D2  1238 102C                 75          MOVE.B  a, D1           * Load value of 'a'
+000010D6  B27C 0000                 76          CMP     #0, D1          * (a == 0) ?
+Line 77 ERROR: Undefined symbol
+000010DA  6600 AC3A                 77          BNE     checkB
+000010DE  11F8 102D 102E            78          MOVE.B  b, value        * Set 'value' equal to 'b'
+000010E4                            79  
+000010E4  43F8 104A                 80          LEA     isZeroA , A1    * TESTING
+000010E8  103C 000E                 81          MOVE.B  #14, D0         
+000010EC  4E4F                      82          TRAP    #15
+000010EE                            83          
+000010EE                            84  recurBlock
+000010EE                            85          
+000010EE  1638 102C                 86          MOVE.B  a, D3
+000010F2  1838 102D                 87          MOVE.B  b, D4
+000010F6  B843                      88          CMP     D3, D4          * (a == b) ? 
+000010F8                            89  
+000010F8                            90          * [ (a == b), return a ]
+000010F8  11C3 102E                 91          MOVE.B  D3, value       
+000010FC  6000 003E                 92          BRA endRecur            * return a
+00001100                            93  
+00001100                            94          * [ (b > a), return GCD( a, (b % a)) ]
+00001100  1638 102C                 95          MOVE.B  a, D3
+00001104  1838 102D                 96          MOVE.B  b, D4
+00001108  86C4                      97          DIVU    D4, D3          * [D3] / [D4] -> [D3]
+0000110A                            98  
+0000110A  383C 0000                 99          MOVE.W  #0, D4          * Clear lower 16-bits of D4
+0000110E  4844                     100          SWAP    D4              * Move remainder to lower 16-bits
+00001110  11C4 102D                101          MOVE.B  D4, b           * Store mod remainder in 'b'
+00001114  609C                     102          BRA     gcd             * return GCD(a, b % a)
+00001116                           103          
+00001116                           104  aGreater
+00001116                           105          * [ (a > b), return GCD(b, (a % b)) ] 
+00001116  4283                     106          CLR.L   D3
+00001118  4284                     107          CLR.L   D4
+0000111A                           108          
+0000111A  1638 102C                109          MOVE.B  a, D3
+0000111E  1838 102D                110          MOVE.B  b, D4
+00001122                           111          
+00001122  B843                     112          CMP     D3, D4          * (a > b) ? 
+00001124  6DF0                     113          BLT     aGreater        * False: branch
+00001126                           114          
+00001126  88C3                     115          DIVU    D3, D4          * [D4] / [D3] -> [D4]
+00001128  383C 0000                116          MOVE.W  #0, D4          * Clear lower 16-bits of D4
+0000112C  4844                     117          SWAP    D4              * Move remainder to lower 16-bits
+0000112E                           118          
+0000112E  11F8 102D 102C           119          MOVE.B  b, a            * Store 'b' into 'a' BEFORE updating 'b'
+00001134  11C4 102D                120          MOVE.B  D4, b           * Store mod remainder in 'b'
+00001138  6000 FF78                121          BRA     gcd             * return GCD(b, a % b)
+0000113C                           122  
+0000113C                           123  endRecur
+0000113C  6000 0002                124          BRA outputValue         * Call last subroutine
+00001140                           125          
+00001140                           126                      *END [ Second SR ]
+00001140                           127                      
+00001140                           128                      
+00001140                           129  outputValue
+00001140                           130  
+00001140                           131          * Final GCD should be in 'value' by this line
+00001140                           132  
+00001140  1238 102E                133          MOVE.B  value, D1       * Output the final GCD
+00001144  103C 0003                134          MOVE.B  #3, D0     
+00001148  4E4F                     135          TRAP    #15
+0000114A                           136                              
+0000114A  2E87                     137          MOVE.L  D7,(A7)         * Push the PC value back into the stack
+0000114C  4E75                     138          RTS                     * Exit subroutine            
+0000114E                           139                      
+0000114E                           140  
+0000114E                           141      END    START   * last line of source 
+
+1 error detected
+No warnings generated
+
+
+SYMBOL TABLE INFORMATION
+Symbol-name         Value
+-------------------------
+A                   102C
+AGREATER            1116
+B                   102D
+CHECKA              10D2
+ENDRECUR            113C
+GCD                 10B2
+GCDSTART            10AC
+ISZEROA             104A
+ISZEROB             1062
+MSGRECUR            1098
+MSGSR_END           107A
+NEWLINE             102F
+OUTPUTVALUE         1140
+PRMTGETA            1032
+PRMTGETB            103E
+RECURBLOCK          10EE
+START               1000
+VALUE               102E
+VALUEWAS            1086
